@@ -9,10 +9,12 @@ player chooses one of the games in games.py, and both players then
 play that game.
 """
 
+# Imports
 import random
 import socket
 import threading
 
+# Import Games
 from games import GAME_NAMES, play_selected_game
 
 
@@ -26,7 +28,7 @@ readers = {}
 clients_lock = threading.Lock()
 send_lock = threading.Lock()
 
-
+# Send messages to the client
 def send(conn, message):
     """Send one newline-terminated message to a client."""
     try:
@@ -36,7 +38,7 @@ def send(conn, message):
     except (ConnectionResetError, BrokenPipeError, OSError):
         return False
 
-
+# Broadcast the message accross the connected clients
 def broadcast(message):
     """Send a message to both players."""
     with clients_lock:
@@ -45,7 +47,7 @@ def broadcast(message):
     for conn in current_clients:
         send(conn, message)
 
-
+# Receive Messages from Client
 def receive(conn):
     """Read one newline-terminated command from a client."""
     reader = readers[conn]
@@ -56,7 +58,7 @@ def receive(conn):
 
     return line.strip()
 
-
+# Close the clients
 def close_clients():
     with clients_lock:
         current_clients = list(clients)
@@ -77,7 +79,7 @@ def close_clients():
         except OSError:
             pass
 
-
+# Wait for two client connections
 def wait_for_two_players(server):
     """Accept exactly two players."""
     print("Waiting for two players...")
@@ -106,7 +108,7 @@ def wait_for_two_players(server):
     broadcast("READY")
     print("Both players are connected.")
 
-
+# Choose the desired game
 def choose_game():
     """
     Randomly select Player 1 or Player 2 as the game chooser.
@@ -154,7 +156,7 @@ def choose_game():
             "ERROR: Choose 1, 2, 3, or 4."
         )
 
-
+# Main Systems
 def main():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
